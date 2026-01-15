@@ -241,5 +241,44 @@ async function sendChat() {
 
 renderPosts();
 </script>
+  <script>
+  // ربط الزر بالدالة بعد تحميل الصفحة
+  document.getElementById("sendBtn").addEventListener("click", sendChat);
+
+  async function sendChat() {
+    const input = document.getElementById("chatInput");
+    const message = input.value.trim();
+
+    if (!message) {
+      alert("من فضلك اكتب سؤال");
+      return;
+    }
+
+    const chatBox = document.getElementById("chatBox");
+
+    chatBox.innerHTML += `<div><b>أنت:</b> ${message}</div>`;
+    input.value = "";
+
+    const loading = document.createElement("div");
+    loading.innerHTML = "<b>🤖 الذكاء الاصطناعي:</b> جاري التفكير...";
+    chatBox.appendChild(loading);
+
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    try {
+      const res = await fetch("/.netlify/functions/gemini", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message })
+      });
+
+      const data = await res.json();
+      loading.innerHTML = `<b>🤖 الذكاء الاصطناعي:</b> ${data.reply}`;
+
+    } catch (e) {
+      loading.innerHTML = "❌ خطأ في الاتصال بالسيرفر";
+    }
+  }
+</script>
 </body>
 </html>
